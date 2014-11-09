@@ -151,12 +151,12 @@ int main() {
 
   // --------------------------------------------------------------------------
   // Hard-error: Intentional; to catch invalid call after SFINAE dispatch at
-  //             compile time. SFINAE dispatch chooses WorkIfTagged for which
+  //             compile time. SFINAE dispatch chooses CallableForTagged for which
   //             the following will fail.
   // Three {};
   // std::printf("%s\n",
-  //             ConditionallyExecute<Three>::Execute(WorkIfTagged {},
-  //                                                  WorkIfNotTagged {},
+  //             ConditionallyExecute<Three>::Execute(CallableForTagged {},
+  //                                                  CallableForUntagged {},
   //                                                  "Given type has").c_str());
   // std::printf("-------------------------\n");
   // --------------------------------------------------------------------------
