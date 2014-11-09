@@ -66,7 +66,7 @@ std::string IsTagged(const std::string& str_prefix) { return str_prefix + std::s
 // ****************************************************************
 // TEST: SFINAE Functionality for templated functions
 // ****************************************************************
-struct WorkIfTagged {
+struct CallableForTagged {
   template<typename T> using rem_ref_t = typename std::remove_reference<T>::type;
   template<typename T> using underlying_type_t = typename std::underlying_type<T>::type;
 
@@ -79,7 +79,7 @@ struct WorkIfTagged {
   }
 };
 
-struct WorkIfNotTagged {
+struct CallableForUntagged {
   template<typename... Types>
   std::string operator()(const std::string& str_prefix, Types&&...) {
     return str_prefix + std::string {" NO associated tag value"};
@@ -126,18 +126,18 @@ int main() {
   // ****************************************************************
   // TEST: SFINAE Functionality for non-generic (C++11) lambdas
   // ****************************************************************
-  auto IsUntaggedTagged = [](const std::string& str_prefix) {
+  auto IsUntagged = [](const std::string& str_prefix) {
     return str_prefix + std::string {" NO associated tag value"};
   };
 
   Seven {};
   std::printf("%s\n",
-              ConditionallyExecute<Seven>::Execute(IsTagged, IsUntaggedTagged, "Given type has").c_str());
+              ConditionallyExecute<Seven>::Execute(IsTagged, IsUntagged, "Given type has").c_str());
   std::printf("-------------------------\n");
 
   Five {};
   std::printf("%s\n",
-              ConditionallyExecute<Five>::Execute(IsTagged, IsUntaggedTagged, "Given type has").c_str());
+              ConditionallyExecute<Five>::Execute(IsTagged, IsUntagged, "Given type has").c_str());
   std::printf("-------------------------\n");
 
   std::printf("-------------------------\n");
@@ -163,28 +163,28 @@ int main() {
 
   Six {};
   std::printf("%s\n",
-              ConditionallyExecute<Six>::Execute(WorkIfTagged {},
-                                                 WorkIfNotTagged {},
+              ConditionallyExecute<Six>::Execute(CallableForTagged {},
+                                                 CallableForUntagged {},
                                                  "Given type has").c_str());
   std::printf("-------------------------\n");
 
   std::printf("%s\n",
-              ConditionallyExecute<Four>::Execute(WorkIfTagged {},
-                                                  WorkIfNotTagged {},
+              ConditionallyExecute<Four>::Execute(CallableForTagged {},
+                                                  CallableForUntagged {},
                                                   "Given type has",
                                                   Four {}).c_str());
   std::printf("-------------------------\n");
 
   std::printf("%s\n",
-              ConditionallyExecute<Seven>::Execute(WorkIfTagged {},
-                                                   WorkIfNotTagged {},
+              ConditionallyExecute<Seven>::Execute(CallableForTagged {},
+                                                   CallableForUntagged {},
                                                    "Given type has",
                                                    Seven {}).c_str());
   std::printf("-------------------------\n");
 
   std::printf("%s\n",
-              ConditionallyExecute<Zero>::Execute(WorkIfTagged {},
-                                                  WorkIfNotTagged {},
+              ConditionallyExecute<Zero>::Execute(CallableForTagged {},
+                                                  CallableForUntagged {},
                                                   "Given type has",
                                                   Zero {}).c_str());
   std::printf("-------------------------\n");
