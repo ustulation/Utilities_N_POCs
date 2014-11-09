@@ -41,10 +41,9 @@
  * |          explanations that have helped me form a mental model to distinguish between |
  * |          SFINAE unfriendly hard-errors (usually instantiation errors) and SFINAE     |
  * |          friendly soft-errors. This in-turn helps build different constructs         |
- * |          accordingly - SFINAE unfriendly version hosted in code-project:             |
+ * |          accordingly - SFINAE unfriendly version I've hosted in code-project:        |
  * |          [ http://www.codeproject.com/Articles/598107/Compile-Time-Map ]             |
- * |          or the same one done in SFINAE friendly way in this project. There are much |
- * |          superior and accurate explanations to SFINAE in CppReference.com etc.       |
+ * |          or a similar one done in SFINAE friendly way in this project.               |
  *  --------------------------------------------------------------------------------------
  *                               S F I N A E   R u l e :
  *                              -------------------------
@@ -59,22 +58,22 @@
  *
  * So
  * <1> Functions:
- * template<typename T>
- * <....> func(....) {}
- * Instantiation of T with actual type must be completely valid then if things (access of template)
- * in .... fail, it's SFINAE. (eg typename T::type func(....) {} etc where T might not have T::type)
+ *       template<typename T>
+ *       <....> func(....) {}
+ *     Instantiation of T with actual type must be completely valid then if things (access of template)
+ *     in .... fail, it's SFINAE. (eg typename T::type func(....) {} etc where T might not have T::type)
  *
  * <2> Class Template Specializations:
- * template<typename T>
- * struct UserDefined<T, typename One<Two<typename T::type>::value>::type> {};
- * all implicit instantiations must be valid, ie., T alone should be completely valid (imagine you
- * did T obj {}; somewhere. This should be doable - well not exactly if default ctor is inaccessible
- * etc., but just to explain the point), then check access: typename T::type. If that's
- * not valid then SFINAE. Else Two<typename T::type> must be completely valid, ie
- * Two<typename T::type> obj {}; should be doable (again not exactly - refer above). If not then
- * hard error. Else check access: Two<....>::value. If not valid then SFINAE. Else One<.....> must be
- * valid. Then check access: typename One<....>::type. If not then SFINAE. Else this specialization
- * is marked to be considered and next specialization is inspected for more specialized.
+ *       template<typename T>
+ *       struct UserDefined<T, typename One<Two<typename T::type>::value>::type> {};
+ *     All implicit instantiations must be valid, ie., T alone should be completely valid (imagine you
+ *     did T obj {}; somewhere. This should be doable - well not exactly if default ctor is inaccessible
+ *     etc., but just to explain the point), then check access: typename T::type. If that's
+ *     not valid then SFINAE. Else Two<typename T::type> must be completely valid, ie
+ *     Two<typename T::type> obj {}; should be doable (again not exactly - refer above). If not then
+ *     hard error. Else check access: Two<....>::value. If not valid then SFINAE. Else One<.....> must be
+ *     valid. Then check access: typename One<....>::type. If not then SFINAE. Else this specialization
+ *     is marked to be considered and next specialization is inspected for more specialized.
  *
  * That is why choose compile-time-map and other facilities carefully to either be designed with
  * recursive body expansion (eg., using A = typename Get<T, U>::A; etc inside body) or inheritance
