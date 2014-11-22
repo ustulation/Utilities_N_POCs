@@ -30,46 +30,24 @@
 #  ---------------
 # | Description:  |
 #  ---------------
-# Top-Level CmakeLists.
+# Providing branching capabilities to the Compile-Time-Variadic Map posted in code project article:
+#      [ http://www.codeproject.com/Articles/598107/Compile-Time-Map ]
+# to enable differential treatment for the mapped and the unmapped data. The construct is widely
+# being used in more organizations now and this capability is now highly called for. This is a POC
+# for the same.
 ###################################################################################################
 
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+project(CompileTimeMapWithStringKey)
 
-string(TOLOWER "${CMAKE_BUILD_TYPE}" BuildConfig)
-if("${BuildConfig}" STREQUAL "debug")
-  message(" ----------------------------------------------")
-  message("| Running in Debug mode turns VERBOSE mode On. |")
-  message("| Try running in Release unless Debugging is   |")
-  message("| required.                                    |")
-  message(" ----------------------------------------------")
-  set(CMAKE_VERBOSE_MAKEFILE ON)
-endif()
+file(GLOB AllCodeFiles "*.cc" "*.h")
 
-set(SubModules
-  CompileTimeMapBaseConcept
-  CompileTimeMapWithStringKey
-  CompileTimeMapWithGenericEnumKey
-)
-
-foreach(SubModule ${SubModules})
-  add_subdirectory(./${SubModule})
-endforeach()
-
-add_custom_target(ExcecuteCompileTimeMapAllTargets
-  COMMAND echo "============================================="
-  COMMAND echo "============================================="
-  COMMAND echo "      Project CompileTimeMapBaseConcept"
-  COMMAND echo "============================================="
-  COMMAND $<TARGET_FILE:CompileTimeMapBaseConcept>
-  COMMAND echo "============================================="
-  COMMAND echo "============================================="
-  COMMAND echo "     Project CompileTimeMapWithStringKey"
-  COMMAND echo "============================================="
-  COMMAND $<TARGET_FILE:CompileTimeMapWithStringKey>
-  COMMAND echo "============================================="
-  COMMAND echo "============================================="
-  COMMAND echo "   Project CompileTimeMapWithGenericEnumKey"
-  COMMAND echo "============================================="
-  COMMAND $<TARGET_FILE:CompileTimeMapWithGenericEnumKey>
-  COMMAND echo "============================================="
+add_executable(${PROJECT_NAME} ${AllCodeFiles})
+target_compile_options(${PROJECT_NAME}
+PRIVATE
+$<$<BOOL:${UNIX}>:
+  -std=c++11
+  -Wall
+  -Werror
+  -O3
+>
 )

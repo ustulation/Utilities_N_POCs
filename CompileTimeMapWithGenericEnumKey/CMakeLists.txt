@@ -37,16 +37,17 @@
 # for the same.
 ###################################################################################################
 
-project(CompileTimeMap)
+project(CompileTimeMapWithGenericEnumKey)
 
 file(GLOB AllCodeFiles "*.cc" "*.h")
 
 add_executable(${PROJECT_NAME} ${AllCodeFiles})
 target_compile_options(${PROJECT_NAME}
 PRIVATE
+$<$<BOOL:${UNIX}>:
   -std=c++11
   -Wall
   -Werror
-  -O2
-  -s
+  -O3
+>
 )
