@@ -25,27 +25,20 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/**************************************************************************************************
- * - ustulation@gmail.com
- *  ---------------
- * | Description:  |
- *  ---------------
- * Providing branching capabilities to the Compile-Time-Variadic Map posted in code project article:
- *      [ http://www.codeproject.com/Articles/598107/Compile-Time-Map ]
- * to enable differential treatment for the mapped and the unmapped data. The construct is widely
- * being used in more organizations now and this capability is now highly called for. This is a POC
- * for the same.
- **************************************************************************************************/
+#include "compile_time_map.h"
 
-#pragma once
+const std::string s0 {"tag-zero"};
+const std::string s1 {"tag-one"};
+const std::string s2 {"tag-two"};
+const std::string s3 {"tag-three"};
+const std::string s4 {"tag-four"};
+const std::string s5 {"tag-five"};
+const std::string s6 {"tag-six"};
 
-#include <cstdio>
-
-struct Zero  { Zero()  {std::printf("Ctor %s\n", __FUNCTION__);} };
-struct One   { One()   {std::printf("Ctor %s\n", __FUNCTION__);} };
-struct Two   { Two()   {std::printf("Ctor %s\n", __FUNCTION__);} };
-struct Three { Three() {std::printf("Ctor %s\n", __FUNCTION__);} };
-struct Four  { Four()  {std::printf("Ctor %s\n", __FUNCTION__);} };
-struct Five  { Five()  {std::printf("Ctor %s\n", __FUNCTION__);} };
-struct Six   { Six()   {std::printf("Ctor %s\n", __FUNCTION__);} };
-struct Seven { Seven() {std::printf("Ctor %s\n", __FUNCTION__);} };
+const double d0 {0.0};
+const double d1 {1.1};
+const double d2 {2.2};
+const double d3 {3.3};
+const double d4 {4.4};
+const double d5 {5.5};
+const double d6 {6.6};

@@ -37,7 +37,7 @@
 # for the same.
 ###################################################################################################
 
-project(CompileTimeMapWithStringKey)
+project(CompileTimeMapWithGenericNonTypeKey)
 
 file(GLOB AllCodeFiles "*.cc" "*.h")
 

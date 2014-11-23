@@ -100,67 +100,90 @@
 // Address of an extern variable would be same in all TU's and hence implicit specializations of template on
 // these addresses would compile into repeated weak-symbols per unique address which at link time will be
 // collapsed into one strong symbol.
+
+// String as compile time key.
 extern const std::string s0;
 extern const std::string s1;
 extern const std::string s2;
 extern const std::string s3;
 extern const std::string s4;
 extern const std::string s5;
+extern const std::string s6;
 
-using Tag = const std::string * const;
+// Double as compile time key.
+extern const double d0;
+extern const double d1;
+extern const double d2;
+extern const double d3;
+extern const double d4;
+extern const double d5;
+extern const double d6;
 
 struct Zero; struct One; struct Two; struct Three; struct Four; struct Five;
 
-namespace detail {
+// ****************************************************************
+//                        Code Segment
+// ****************************************************************
+template<typename EnumType, EnumType tag, typename> struct Pair;
+template<typename...> struct CTM;
 
+// I've specialized the 1st template argument for CTM as a trick with sole purpose of obtaining
+// the typename KeyType which can now be conveniently used throughout the body of CTM. KeyType
+// is the only thing that's guaranteed to remain unchanged in the variadic list. If I don't use this
+// trick then I'll need an extra mention of "typename KeyType" in all the nested class templates
+// which would be repetitive and ugly.
+template<typename KeyType, KeyType key_tag, typename DataType, typename... Pairs>
+struct CTM<Pair<KeyType, key_tag, DataType>, Pairs...> {
+  CTM() = delete;
+  ~CTM() = delete;
+
+private:
   // ****************************************************************
   //                        Map Segment
   // ****************************************************************
   template<typename Data, typename NextNode> struct Node;
   struct ERROR_Entry_Not_Found_In_Map;
 
-  template<Tag, typename> struct Pair;
-
   template<typename...> struct CompileTimeMap;
 
-  template<Tag tag, typename Type, typename... Pairs>
-  struct CompileTimeMap<Pair<tag, Type>, Pairs...> {
-    using Map = Node<Pair<tag, Type>, typename CompileTimeMap<Pairs...>::Map>;
+  template<KeyType tag, typename Type, typename... Args>
+  struct CompileTimeMap<Pair<KeyType, tag, Type>, Args...> {
+    using Map = Node<Pair<KeyType, tag, Type>, typename CompileTimeMap<Args...>::Map>;
   };
 
-  template<Tag tag, typename Type>
-  struct CompileTimeMap<Pair<tag, Type>> {
-    using Map = Node<Pair<tag, Type>, ERROR_Entry_Not_Found_In_Map>;
+  template<KeyType tag, typename Type>
+  struct CompileTimeMap<Pair<KeyType, tag, Type>> {
+    using Map = Node<Pair<KeyType, tag, Type>, ERROR_Entry_Not_Found_In_Map>;
   };
 
   // ****************************************************************
   //                        Search Segment
   // ****************************************************************
-  template<Tag, typename> struct GivenTagFindType;
+  template<KeyType, typename> struct GivenTagFindType;
 
-  template<Tag GivenTag, Tag tag, typename Type, typename NextNode>
-  struct GivenTagFindType<GivenTag, Node<Pair<tag, Type>, NextNode>>
+  template<KeyType GivenTag, KeyType tag, typename Type, typename NextNode>
+  struct GivenTagFindType<GivenTag, Node<Pair<KeyType, tag, Type>, NextNode>>
       : GivenTagFindType<GivenTag, NextNode> {};
 
-  template<Tag GivenTag, typename Type, typename NextNode>
-  struct GivenTagFindType<GivenTag, Node<Pair<GivenTag, Type>, NextNode>> {
+  template<KeyType GivenTag, typename Type, typename NextNode>
+  struct GivenTagFindType<GivenTag, Node<Pair<KeyType, GivenTag, Type>, NextNode>> {
     using type = Type;
   };
 
-  template<Tag GivenTag>
+  template<KeyType GivenTag>
   struct GivenTagFindType<GivenTag, ERROR_Entry_Not_Found_In_Map> {};
 
   // ----------------------------------------------------------------
 
   template<typename, typename> struct GivenTypeFindTag;
 
-  template<typename GivenType, Tag tag, typename Type, typename NextNode>
-  struct GivenTypeFindTag<GivenType, Node<Pair<tag, Type>, NextNode>>
+  template<typename GivenType, KeyType tag, typename Type, typename NextNode>
+  struct GivenTypeFindTag<GivenType, Node<Pair<KeyType, tag, Type>, NextNode>>
       : GivenTypeFindTag<GivenType, NextNode> {};
 
-  template<typename GivenType, Tag tag, typename NextNode>
-  struct GivenTypeFindTag<GivenType, Node<Pair<tag, GivenType>, NextNode>> {
-    static constexpr Tag value {tag};
+  template<typename GivenType, KeyType tag, typename NextNode>
+  struct GivenTypeFindTag<GivenType, Node<Pair<KeyType, tag, GivenType>, NextNode>> {
+    static constexpr KeyType value {tag};
   };
 
   template<typename GivenType>
@@ -169,43 +192,49 @@ namespace detail {
   // ****************************************************************
   //                        Populate Segment
   // ****************************************************************
-  using RootNode = CompileTimeMap<
-  Pair<&s0, Zero>, Pair<&s1, One>, Pair<&s2, Two>, Pair<&s3, Three>,
-  Pair<&s4, Four>, Pair<&s5, Five>
-  >::Map;
+  using RootNode = typename CompileTimeMap<Pair<KeyType, key_tag, DataType>, Pairs...>::Map;
 
   // ****************************************************************
   //                   SFINAE-Branching Helpers Segment
   // ****************************************************************
-  template<Tag*... tags> struct TypesToVoid { using type = void; };
-  template<Tag*... tags> using void_t = typename TypesToVoid<tags...>::type;
+  template<KeyType*... tags> struct TypesToVoid { using type = void; };
+  template<KeyType*... tags> using void_t = typename TypesToVoid<tags...>::type;
 
-}  // namespace detail
+public:
+  // ****************************************************************
+  //                        Convenience Segment
+  // ****************************************************************
+  template<KeyType tag>
+  using GivenTagFindType_t = typename GivenTagFindType<tag, RootNode>::type;
 
-// ****************************************************************
-//                        Convenience Segment
-// ****************************************************************
-template<Tag tag>
-using GivenTagFindType_t = typename detail::GivenTagFindType<tag, detail::RootNode>::type;
+  template<typename Type>
+  struct GivenTypeFindTag_v : GivenTypeFindTag<Type, RootNode> {};
 
-template<typename Type>
-struct GivenTypeFindTag_v : detail::GivenTypeFindTag<Type, detail::RootNode> {};
+  // ****************************************************************
+  //                      SFINAE-Branching Segment
+  // ****************************************************************
+  template<typename Type, typename = void>
+  struct ConditionallyExecute {
+    template<typename CallIfFound, typename CallIfNotFound, typename... Types>
+    static auto Execute(CallIfFound, CallIfNotFound F, Types&&... args) -> decltype(F(args...)) {
+      return F(std::forward<Types>(args)...);
+    }
+  };
 
-// ****************************************************************
-//                      SFINAE-Branching Segment
-// ****************************************************************
-template<typename Type, typename = void>
-struct ConditionallyExecute {
-  template<typename CallIfFound, typename CallIfNotFound, typename... Types>
-  static auto Execute(CallIfFound, CallIfNotFound F, Types&&... args) -> decltype(F(args...)) {
-    return F(std::forward<Types>(args)...);
-  }
+  template<typename Type>
+  struct ConditionallyExecute<Type, void_t<&GivenTypeFindTag_v<Type>::value>> {
+    template<typename CallIfFound, typename CallIfNotFound, typename... Types>
+    static auto Execute(CallIfFound F, CallIfNotFound, Types&&... args) -> decltype(F(args...)) {
+      return F(std::forward<Types>(args)...);
+    }
+  };
 };
 
-template<typename Type>
-struct ConditionallyExecute<Type, detail::void_t<&GivenTypeFindTag_v<Type>::value>> {
-  template<typename CallIfFound, typename CallIfNotFound, typename... Types>
-  static auto Execute(CallIfFound F, CallIfNotFound, Types&&... args) -> decltype(F(args...)) {
-    return F(std::forward<Types>(args)...);
-  }
-};
+// ****************************************************************
+//                      For Convenience
+// ****************************************************************
+using StringKey_t = const std::string * const;
+using DoubleKey_t = const double * const;
+
+template<StringKey_t tag, typename T> using PairSz_t = Pair<StringKey_t, tag, T>;
+template<DoubleKey_t tag, typename T> using PairDb_t = Pair<DoubleKey_t, tag, T>;

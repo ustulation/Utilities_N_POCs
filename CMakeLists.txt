@@ -47,8 +47,8 @@ endif()
 
 set(SubModules
   CompileTimeMapBaseConcept
-  CompileTimeMapWithStringKey
   CompileTimeMapWithGenericEnumKey
+  CompileTimeMapWithGenericNonTypeKey
 )
 
 foreach(SubModule ${SubModules})
@@ -63,13 +63,13 @@ add_custom_target(ExcecuteCompileTimeMapAllTargets
   COMMAND $<TARGET_FILE:CompileTimeMapBaseConcept>
   COMMAND echo "============================================="
   COMMAND echo "============================================="
-  COMMAND echo "     Project CompileTimeMapWithStringKey"
-  COMMAND echo "============================================="
-  COMMAND $<TARGET_FILE:CompileTimeMapWithStringKey>
-  COMMAND echo "============================================="
-  COMMAND echo "============================================="
   COMMAND echo "   Project CompileTimeMapWithGenericEnumKey"
   COMMAND echo "============================================="
   COMMAND $<TARGET_FILE:CompileTimeMapWithGenericEnumKey>
+  COMMAND echo "============================================="
+  COMMAND echo "============================================="
+  COMMAND echo " Project CompileTimeMapWithGenericNonTypeKey"
+  COMMAND echo "============================================="
+  COMMAND $<TARGET_FILE:CompileTimeMapWithGenericNonTypeKey>
   COMMAND echo "============================================="
 )

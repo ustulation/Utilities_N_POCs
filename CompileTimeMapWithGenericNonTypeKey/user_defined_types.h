@@ -25,11 +25,27 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "compile_time_map.h"
+/**************************************************************************************************
+ * - ustulation@gmail.com
+ *  ---------------
+ * | Description:  |
+ *  ---------------
+ * Providing branching capabilities to the Compile-Time-Variadic Map posted in code project article:
+ *      [ http://www.codeproject.com/Articles/598107/Compile-Time-Map ]
+ * to enable differential treatment for the mapped and the unmapped data. The construct is widely
+ * being used in more organizations now and this capability is now highly called for. This is a POC
+ * for the same.
+ **************************************************************************************************/
 
-const std::string s0 {"tag-zero"};
-const std::string s1 {"tag-one"};
-const std::string s2 {"tag-two"};
-const std::string s3 {"tag-three"};
-const std::string s4 {"tag-four"};
-const std::string s5 {"tag-five"};
+#pragma once
+
+#include <iostream>
+
+struct Zero  { Zero()  {std::cerr << "Ctor " << __FUNCTION__ << '\n';} };
+struct One   { One()   {std::cerr << "Ctor " << __FUNCTION__ << '\n';} };
+struct Two   { Two()   {std::cerr << "Ctor " << __FUNCTION__ << '\n';} };
+struct Three { Three() {std::cerr << "Ctor " << __FUNCTION__ << '\n';} };
+struct Four  { Four()  {std::cerr << "Ctor " << __FUNCTION__ << '\n';} };
+struct Five  { Five()  {std::cerr << "Ctor " << __FUNCTION__ << '\n';} };
+struct Six   { Six()   {std::cerr << "Ctor " << __FUNCTION__ << '\n';} };
+struct Seven { Seven() {std::cerr << "Ctor " << __FUNCTION__ << '\n';} };
